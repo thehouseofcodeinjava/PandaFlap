@@ -3,10 +3,10 @@ import { View, StyleSheet, Dimensions, Platform } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  runOnJS,
   useFrameCallback,
   useDerivedValue,
 } from 'react-native-reanimated';
+import { runOnJS } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Panda } from './Panda';
 import { BambooObstacle } from './BambooObstacle';
@@ -19,10 +19,11 @@ interface GameEngineProps {
   onScore: (score: number) => void;
   onFlap: () => void;
   gameState: 'playing' | 'gameOver';
+  onRestart: () => void;
 }
 
 export const GameEngine = forwardRef<any, GameEngineProps>(
-  ({ onGameOver, onScore, onFlap, gameState }, ref) => {
+  ({ onGameOver, onScore, onFlap, gameState, onRestart }, ref) => {
     // Game physics constants
     const GRAVITY = 0.6;
     const FLAP_STRENGTH = -12;
@@ -88,19 +89,18 @@ export const GameEngine = forwardRef<any, GameEngineProps>(
   obstacle3Passed.current = false;
     };
 
-    const flap = () => {
-      // Start game on first tap
-      if (!gameRunning.value) {
-        gameRunning.value = true;
-        // Reset velocity to zero before first flap
-        pandaVelocity.value = 0;
-      }
-      pandaVelocity.value = FLAP_STRENGTH;
-      runOnJS(onFlap)();
-    };
-
     const tap = Gesture.Tap().onEnd(() => {
-      runOnJS(flap)();
+      'worklet';
+      if (gameState === 'gameOver') {
+        runOnJS(onRestart)();
+      } else {
+        if (!gameRunning.value) {
+          gameRunning.value = true;
+          pandaVelocity.value = 0;
+        }
+        pandaVelocity.value = FLAP_STRENGTH;
+        runOnJS(onFlap)();
+      }
     });
 
     const checkCollisions = () => {

@@ -102,6 +102,7 @@ export default function GameScreen() {
         onScore={handleScore}
         onFlap={handleFlap}
         gameState={gameState}
+        onRestart={restartGame}
       />
       
       {/* UI Overlay */}
