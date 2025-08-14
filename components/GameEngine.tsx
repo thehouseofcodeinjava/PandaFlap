@@ -34,11 +34,8 @@ export const GameEngine = forwardRef<any, GameEngineProps>(
 
   // Game state
   // Center the panda in the gap and place obstacles farther away
-  // Add extra margin so panda starts well within the gap
-  const GAP_MARGIN = 40;
-  const GAP_HEIGHT_SAFE = GAP_HEIGHT - GAP_MARGIN * 2;
-  const centeredGapY = (height - GAP_HEIGHT_SAFE) / 2;
-  const pandaY = useSharedValue(centeredGapY + GAP_HEIGHT_SAFE / 2);
+  const centeredGapY = (height - GAP_HEIGHT) / 2;
+  const pandaY = useSharedValue(centeredGapY + GAP_HEIGHT / 2);
   const pandaVelocity = useSharedValue(0);
   // Game only runs after first tap
   const gameRunning = useSharedValue(false);
@@ -69,7 +66,7 @@ export const GameEngine = forwardRef<any, GameEngineProps>(
   // Pause game until first tap
   gameRunning.value = false;
   // Reset panda to center of gap
-  pandaY.value = centeredGapY + GAP_HEIGHT_SAFE / 2;
+  pandaY.value = centeredGapY + GAP_HEIGHT / 2;
   pandaVelocity.value = 0;
   currentScore.current = 0;
   gameSpeed.value = GAME_SPEED;
@@ -119,7 +116,7 @@ export const GameEngine = forwardRef<any, GameEngineProps>(
 
       // Check collisions with all obstacles
       const obstacles = [
-        { x: obstacle1X.value, gapY: obstacle1GapY.value, gapHeight: GAP_HEIGHT_SAFE, passed: obstacle1Passed },
+        { x: obstacle1X.value, gapY: obstacle1GapY.value, gapHeight: GAP_HEIGHT, passed: obstacle1Passed },
         { x: obstacle2X.value, gapY: obstacle2GapY.value, gapHeight: GAP_HEIGHT, passed: obstacle2Passed },
         { x: obstacle3X.value, gapY: obstacle3GapY.value, gapHeight: GAP_HEIGHT, passed: obstacle3Passed },
       ];
@@ -177,7 +174,9 @@ export const GameEngine = forwardRef<any, GameEngineProps>(
       resetObstacle(obstacle2X, obstacle2GapY, obstacle2Passed);
       resetObstacle(obstacle3X, obstacle3GapY, obstacle3Passed);
 
-      runOnJS(checkCollisions)();
+      if (gameRunning.value) {
+        runOnJS(checkCollisions)();
+      }
     });
 
     const pandaAnimatedStyle = useAnimatedStyle(() => ({
@@ -195,7 +194,7 @@ export const GameEngine = forwardRef<any, GameEngineProps>(
           <BambooObstacle
             x={obstacle1X}
             gapY={obstacle1GapY.value}
-            gapHeight={GAP_HEIGHT_SAFE}
+            gapHeight={GAP_HEIGHT}
           />
           <BambooObstacle
             x={obstacle2X}
