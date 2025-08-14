@@ -177,10 +177,7 @@ export const GameEngine = forwardRef<any, GameEngineProps>(
       resetObstacle(obstacle2X, obstacle2GapY, obstacle2Passed);
       resetObstacle(obstacle3X, obstacle3GapY, obstacle3Passed);
 
-      // Check collisions only if gameRunning is true
-      if (gameRunning.value) {
-        runOnJS(checkCollisions)();
-      }
+      runOnJS(checkCollisions)();
     });
 
     const pandaAnimatedStyle = useAnimatedStyle(() => ({
